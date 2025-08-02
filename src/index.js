@@ -45,14 +45,8 @@ window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
 const drawPlayer = (player) => {
-	let playerColor;
-	if (teamMode && !teamsAssigned) {
-		playerColor = '#666'; // Grey color before team assignment
-	} else if (teamMode) {
-		playerColor = teamColor(player.color);
-	} else {
-		playerColor = color(player.color);
-	}
+	const playerColor = teamMode && !teamsAssigned ? '#666' :
+		teamMode ? teamColor(player.color) : color(player.color);
 	ctx.beginPath();
 	ctx.strokeStyle = playerColor;
 	ctx.lineWidth = 10;
@@ -174,16 +168,7 @@ const assignPlayerToTeam = (playerId) => {
 };
 
 const addPlayer = (id, x, y) => {
-	const player = { x, y };
-
-	if (teamMode) {
-		// Don't assign team yet, just use a placeholder
-		player.color = 0;
-		player.team = undefined;
-	} else {
-		player.color = pickUnusedColor();
-	}
-
+	const player = { x, y, color: teamMode ? 0 : pickUnusedColor() };
 	players.set(id, player);
 	draw();
 	ariaLiveLog(`Player ${id} added`);
