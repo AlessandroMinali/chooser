@@ -24,6 +24,7 @@ const chosenPlayerAnimation = {
 let teamMode = false;
 let teamCount = 2;
 const teams = new Map();
+let teamsAssigned = false;
 
 const ariaLiveLog = (msg) => {
 	const element = document.createElement("div");
@@ -44,7 +45,14 @@ window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
 const drawPlayer = (player) => {
-	const playerColor = teamMode ? teamColor(player.color) : color(player.color);
+	let playerColor;
+	if (teamMode && !teamsAssigned) {
+		playerColor = '#666'; // Grey color before team assignment
+	} else if (teamMode) {
+		playerColor = teamColor(player.color);
+	} else {
+		playerColor = color(player.color);
+	}
 	ctx.beginPath();
 	ctx.strokeStyle = playerColor;
 	ctx.lineWidth = 10;
@@ -169,20 +177,16 @@ const addPlayer = (id, x, y) => {
 	const player = { x, y };
 
 	if (teamMode) {
-		player.team = assignPlayerToTeam(id);
-		player.color = player.team;
+		// Don't assign team yet, just use a placeholder
+		player.color = 0;
+		player.team = undefined;
 	} else {
 		player.color = pickUnusedColor();
 	}
 
 	players.set(id, player);
 	draw();
-
-	if (teamMode) {
-		ariaLiveLog(`Player ${id} added to team ${player.team + 1}`);
-	} else {
-		ariaLiveLog(`Player ${id} added`);
-	}
+	ariaLiveLog(`Player ${id} added`);
 };
 
 const updatePlayer = (id, x, y) => {
@@ -200,9 +204,42 @@ const removePlayer = (id) => {
 	ariaLiveLog(`Player ${id} removed`);
 };
 
+const assignTeamsToPlayers = () => {
+	const playerIds = Array.from(players.keys());
+	const shuffled = [...playerIds].sort(() => Math.random() - 0.5);
+	
+	teams.clear();
+	for (let i = 0; i < teamCount; i++) {
+		teams.set(i, []);
+	}
+	
+	shuffled.forEach((playerId, index) => {
+		const teamIndex = index % teamCount;
+		const player = players.get(playerId);
+		player.team = teamIndex;
+		player.color = teamIndex;
+		teams.get(teamIndex).push(playerId);
+	});
+	
+	teamsAssigned = true;
+	draw();
+	
+	for (let i = 0; i < teamCount; i++) {
+		const teamPlayers = teams.get(i);
+		if (teamPlayers.length > 0) {
+			ariaLiveLog(`Team ${i + 1}: ${teamPlayers.length} players`);
+		}
+	}
+};
+
 const choosePlayer = (function () {
 	const choosePlayer = () => {
-		if (players.size < MIN_PLAYERS || teamMode) return;
+		if (players.size < MIN_PLAYERS) return;
+		
+		if (teamMode) {
+			assignTeamsToPlayers();
+			return;
+		}
 
 		const choosen = Math.floor(Math.random() * players.size);
 		chosenPlayer = Array.from(players.keys())[choosen];
@@ -223,7 +260,7 @@ const choosePlayer = (function () {
 	let timeout;
 	return () => {
 		window.clearTimeout(timeout);
-		if (!teamMode && chosenPlayer === undefined && players.size >= MIN_PLAYERS) {
+		if (chosenPlayer === undefined && players.size >= MIN_PLAYERS) {
 			timeout = window.setTimeout(choosePlayer, CHOOSE_DELAY_MS);
 		}
 	};
@@ -232,6 +269,7 @@ const choosePlayer = (function () {
 const reset = (function () {
 	const reset = () => {
 		chosenPlayer = undefined;
+		teamsAssigned = false;
 		players.clear();
 		teams.clear();
 		ariaLiveReset();
@@ -254,7 +292,7 @@ document.addEventListener("pointermove", (e) => {
 	updatePlayer(e.pointerId, e.clientX, e.clientY);
 });
 const onPointerRemove = (e) => {
-	if (chosenPlayer === e.pointerId) {
+	if (chosenPlayer === e.pointerId || (teamMode && teamsAssigned)) {
 		reset();
 	} else {
 		removePlayer(e.pointerId);
@@ -301,7 +339,7 @@ const updateTeamModeUI = () => {
 	if (teamMode) {
 		teamModeToggle.classList.add('active');
 		teamCountLabel.classList.add('visible');
-		description.textContent = `Team Mode: Players will be auto-assigned to ${teamCount} teams with different colors.`;
+		description.textContent = `Team Mode: After 2 seconds, players will be randomly assigned to ${teamCount} teams.`;
 	} else {
 		teamModeToggle.classList.remove('active');
 		teamCountLabel.classList.remove('visible');
