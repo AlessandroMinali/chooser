@@ -228,7 +228,7 @@ const choosePlayer = (function () {
 	let timeout;
 	return () => {
 		window.clearTimeout(timeout);
-		if (chosenPlayer === undefined && players.size >= MIN_PLAYERS) {
+		if (!teamMode && chosenPlayer === undefined && players.size >= MIN_PLAYERS) {
 			timeout = window.setTimeout(choosePlayer, CHOOSE_DELAY_MS);
 		}
 	};
