@@ -24,7 +24,6 @@ const chosenPlayerAnimation = {
 let teamMode = false;
 let teamCount = 2;
 const teams = new Map();
-let chosenTeam;
 
 const ariaLiveLog = (msg) => {
 	const element = document.createElement("div");
@@ -206,30 +205,8 @@ const choosePlayer = (function () {
 		if (players.size < MIN_PLAYERS) return;
 
 		if (teamMode) {
-			const teamSizes = Array.from({ length: teamCount }, () => 0);
-			for (const player of players.values()) {
-				teamSizes[player.team]++;
-			}
-
-			const teamsWithPlayers = teamSizes.map((size, index) => ({ index, size })).filter(team => team.size > 0);
-			if (teamsWithPlayers.length < 2) return;
-
-			chosenTeam = teamsWithPlayers[Math.floor(Math.random() * teamsWithPlayers.length)].index;
-
-			const teamPlayers = Array.from(players.entries()).filter(([id, player]) => player.team === chosenTeam);
-			const [chosenId, chosenPlayerData] = teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
-			chosenPlayer = chosenId;
-
-			chosenPlayerAnimation.startTime = Date.now();
-			chosenPlayerAnimation.startValue = Math.max(
-				chosenPlayerData.x,
-				canvas.width - chosenPlayerData.x,
-				chosenPlayerData.y,
-				canvas.height - chosenPlayerData.y
-			);
-
-			draw();
-			ariaLiveLog(`Team ${chosenTeam + 1} chosen (Player ${chosenPlayer})`);
+			// In team mode, don't choose anyone - just keep showing teams
+			return;
 		} else {
 			const choosen = Math.floor(Math.random() * players.size);
 			chosenPlayer = Array.from(players.keys())[choosen];
@@ -260,7 +237,6 @@ const choosePlayer = (function () {
 const reset = (function () {
 	const reset = () => {
 		chosenPlayer = undefined;
-		chosenTeam = undefined;
 		players.clear();
 		teams.clear();
 		ariaLiveReset();
@@ -330,7 +306,7 @@ const updateTeamModeUI = () => {
 	if (teamMode) {
 		teamModeToggle.classList.add('active');
 		teamCountLabel.classList.add('visible');
-		description.textContent = `Team Mode: Make players put fingers on screen. Teams will be auto-assigned and one team chosen at random.`;
+		description.textContent = `Team Mode: Players will be auto-assigned to ${teamCount} teams with different colors.`;
 	} else {
 		teamModeToggle.classList.remove('active');
 		teamCountLabel.classList.remove('visible');
