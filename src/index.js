@@ -202,27 +202,22 @@ const removePlayer = (id) => {
 
 const choosePlayer = (function () {
 	const choosePlayer = () => {
-		if (players.size < MIN_PLAYERS) return;
+		if (players.size < MIN_PLAYERS || teamMode) return;
 
-		if (teamMode) {
-			// In team mode, don't choose anyone - just keep showing teams
-			return;
-		} else {
-			const choosen = Math.floor(Math.random() * players.size);
-			chosenPlayer = Array.from(players.keys())[choosen];
+		const choosen = Math.floor(Math.random() * players.size);
+		chosenPlayer = Array.from(players.keys())[choosen];
 
-			const player = players.get(chosenPlayer);
-			chosenPlayerAnimation.startTime = Date.now();
-			chosenPlayerAnimation.startValue = Math.max(
-				player.x,
-				canvas.width - player.x,
-				player.y,
-				canvas.height - player.y
-			);
+		const player = players.get(chosenPlayer);
+		chosenPlayerAnimation.startTime = Date.now();
+		chosenPlayerAnimation.startValue = Math.max(
+			player.x,
+			canvas.width - player.x,
+			player.y,
+			canvas.height - player.y
+		);
 
-			draw();
-			ariaLiveLog(`Player ${chosenPlayer} chosen`);
-		}
+		draw();
+		ariaLiveLog(`Player ${chosenPlayer} chosen`);
 	};
 
 	let timeout;
