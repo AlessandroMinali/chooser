@@ -57,3 +57,103 @@ body {
 #update-available a {
 	color: #0ff;
 }
+
+#controls {
+	position: fixed;
+	top: 1em;
+	right: 1em;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+}
+
+#team-mode-toggle {
+	padding: 0.5em 1em;
+	background-color: #333;
+	color: #fff;
+	border: 2px solid #666;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.2s ease;
+}
+
+#team-mode-toggle:hover {
+	background-color: #444;
+	border-color: #777;
+}
+
+#team-mode-toggle.active {
+	background-color: #ff0739;
+	border-color: #ff0739;
+}
+
+#team-count-label {
+	display: none;
+	align-items: center;
+	gap: 0.5em;
+	font-size: 14px;
+	background-color: rgba(0, 0, 0, 0.7);
+	padding: 0.5em;
+	border-radius: 4px;
+}
+
+#team-count-label.visible {
+	display: flex;
+}
+
+#team-minus,
+#team-plus {
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	background-color: #333;
+	color: #fff;
+	border: 1px solid #666;
+	border-radius: 50%;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+}
+
+#team-minus:hover,
+#team-plus:hover {
+	background-color: #444;
+	border-color: #777;
+}
+
+#team-minus:disabled,
+#team-plus:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+	#controls {
+		top: 0.5em;
+		right: 0.5em;
+		gap: 0.3em;
+	}
+
+	#team-mode-toggle {
+		padding: 0.4em 0.8em;
+		font-size: 12px;
+	}
+
+	#team-count-label {
+		font-size: 12px;
+		padding: 0.4em;
+	}
+
+	#team-minus,
+	#team-plus {
+		width: 20px;
+		height: 20px;
+		font-size: 12px;
+	}
+}
