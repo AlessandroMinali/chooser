@@ -301,6 +301,24 @@ document.addEventListener(
 	{ passive: false }
 );
 
+// Prevent double-tap zoom
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+	const now = Date.now();
+	if (now - lastTouchEnd <= 300) {
+		e.preventDefault();
+	}
+	lastTouchEnd = now;
+}, { passive: false });
+
+// Prevent pinch zoom
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('gesturechange', (e) => e.preventDefault());
+document.addEventListener('gestureend', (e) => e.preventDefault());
+
+// Prevent context menu
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
 if ("serviceWorker" in navigator && location.hostname !== "localhost") {
 	window.addEventListener("load", () => {
 		navigator.serviceWorker.register("/chooser/src/sw.js").catch((err) => {
